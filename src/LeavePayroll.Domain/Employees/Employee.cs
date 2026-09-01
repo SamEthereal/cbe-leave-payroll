@@ -20,7 +20,6 @@ public class Employee : BaseEntity, IAuditableEntity
     public string? PhotoPath { get; set; }
     public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
 
-    // Sub-entities / Navigation properties
     public EmployeeContact? ContactDetails { get; set; }
     public EmployeeFamily? FamilyStatus { get; set; }
     public EmployeeParent? ParentsInfo { get; set; }
