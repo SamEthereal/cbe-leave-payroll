@@ -1,0 +1,180 @@
+@page "/movements"
+@using LeavePayroll.Domain.Employees
+@using LeavePayroll.Domain.Movements
+@using LeavePayroll.Infrastructure.Persistence
+@using Microsoft.EntityFrameworkCore
+@inject LeavePayrollDbContext DbContext
+
+<PageTitle>Promotions & Transfers - CBE Leave & Payroll</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-arrow-left-right text-primary me-2"></i>Promotions, Transfers & Grade Changes</h2>
+        <p class="text-muted mb-0">CBE-SSL Employee Career Movement & Workflow Approvals</p>
+    </div>
+    <button class="btn btn-primary shadow-sm" @onclick="ShowNewModal"><i class="bi bi-plus-circle me-1"></i> Initiate Movement Request</button>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Form #</th>
+                        <th>Action Type</th>
+                        <th>Current Grade $\rightarrow$ Proposed</th>
+                        <th>Current Salary $\rightarrow$ Proposed</th>
+                        <th>Effective Date</th>
+                        <th>Workflow Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (MovementList.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No movement requests recorded yet. Click "Initiate Movement Request" to start one.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var m in MovementList)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary font-monospace">@m.FormNumber</span></td>
+                                <td><span class="badge bg-primary">@m.ActionType</span></td>
+                                <td>Grade @m.CurrentGradeLevel $\rightarrow$ <strong class="text-success">Grade @m.ProposedGradeLevel</strong></td>
+                                <td>@m.CurrentBasicSalary.ToString("N0") $\rightarrow$ <strong class="text-success">@m.ProposedBasicSalary.ToString("N0")</strong></td>
+                                <td>@m.EffectiveDate.ToShortDateString()</td>
+                                <td>
+                                    <span class="badge @(m.Status == MovementStatus.Approved ? "bg-success" : m.Status == MovementStatus.Rejected ? "bg-danger" : "bg-warning text-dark")">
+                                        @m.Status
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-info me-1"><i class="bi bi-check-circle"></i> Review</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (IsModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-diff me-2"></i>New Promotion / Transfer Request Form</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form @onsubmit="SaveMovement">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Select Employee</label>
+                                <select class="form-select" @bind="NewMovement.EmployeeId" required>
+                                    <option value="">Select Employee...</option>
+                                    @foreach (var emp in Employees)
+                                    {
+                                        <option value="@emp.Id">@emp.StaffId - @emp.FullName (Grade @emp.EmploymentInfo?.GradeLevel)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Action Type</label>
+                                <select class="form-select" @bind="NewMovement.ActionType">
+                                    <option value="@MovementActionType.Promotion">Promotion</option>
+                                    <option value="@MovementActionType.Transfer">Transfer</option>
+                                    <option value="@MovementActionType.GradeSalaryChange">Grade / Salary Change</option>
+                                    <option value="@MovementActionType.Combined">Combined (Promotion with Transfer)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Proposed Grade Level (1 - 9)</label>
+                                <input type="number" min="1" max="9" class="form-control" @bind="NewMovement.ProposedGradeLevel" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Proposed Basic Salary</label>
+                                <input type="number" step="1000" class="form-control" @bind="NewMovement.ProposedBasicSalary" required />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Effective Date</label>
+                                <input type="date" class="form-control" @bind="NewMovement.EffectiveDate" required />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Justification / Reason for Action</label>
+                                <textarea class="form-control" rows="3" @bind="NewMovement.Justification" placeholder="Enter HR/Manager justification..."></textarea>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="card bg-light border-0 p-3">
+                                    <h6 class="fw-bold mb-2">Eligibility & Budget Checklist (CBE HR Policy)</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="NewMovement.SatisfiesMinimumTenure" id="c1">
+                                        <label class="form-check-label" for="c1">Minimum tenure in current role satisfied per HR policy</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="NewMovement.PerformanceAppraisalSupports" id="c2">
+                                        <label class="form-check-label" for="c2">Most recent performance appraisal rating supports this action</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="NewMovement.NoPendingDisciplinaryAction" id="c3">
+                                        <label class="form-check-label" for="c3">No pending or active disciplinary action against employee</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-end">
+                            <button type="button" class="btn btn-secondary me-2" @onclick="CloseModal">Cancel</button>
+                            <button type="submit" class="btn btn-success"><i class="bi bi-send me-1"></i> Submit for HR/MD Approval</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<EmployeeMovement> MovementList = [];
+    private List<Employee> Employees = [];
+    private bool IsModalOpen = false;
+    private EmployeeMovement NewMovement = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        MovementList = await DbContext.EmployeeMovements.ToListAsync();
+        Employees = await DbContext.Employees.Include(e => e.EmploymentInfo).ToListAsync();
+    }
+
+    private void ShowNewModal()
+    {
+        NewMovement = new EmployeeMovement
+        {
+            FormNumber = $"PROM-{DateTime.UtcNow:yyyyMMdd}-{MovementList.Count + 1:D3}",
+            EffectiveDate = DateTime.UtcNow.AddDays(14)
+        };
+        IsModalOpen = true;
+    }
+
+    private void CloseModal() => IsModalOpen = false;
+
+    private async Task SaveMovement()
+    {
+        NewMovement.Status = MovementStatus.PendingHR;
+        DbContext.EmployeeMovements.Add(NewMovement);
+        await DbContext.SaveChangesAsync();
+        MovementList.Add(NewMovement);
+        IsModalOpen = false;
+    }
+}

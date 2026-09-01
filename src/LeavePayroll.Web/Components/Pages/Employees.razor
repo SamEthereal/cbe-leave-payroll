@@ -1,0 +1,127 @@
+@page "/employees"
+@using LeavePayroll.Domain.Employees
+@using LeavePayroll.Infrastructure.Persistence
+@using Microsoft.EntityFrameworkCore
+@inject LeavePayrollDbContext DbContext
+
+<PageTitle>Employee Directory - CBE Leave & Payroll</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Employee Master Directory</h2>
+        <p class="text-muted mb-0">CBE Bio-Data, Employment Records & Position Hierarchy</p>
+    </div>
+    <a href="employees/new" class="btn btn-primary shadow-sm"><i class="bi bi-person-plus me-1"></i> Onboard New Employee</a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-light rounded">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Search by Staff ID, Name, National ID, TIN..." @bind="SearchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" @bind="SelectedGrade">
+                    <option value="0">All Grades (1 - 9)</option>
+                    @for (int g = 1; g <= 9; g++)
+                    {
+                        <option value="@g">Grade @g</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" @bind="SelectedStatus">
+                    <option value="">All Statuses</option>
+                    <option value="Active">Active</option>
+                    <option value="Probationary">Probationary</option>
+                    <option value="Suspended">Suspended</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Staff ID</th>
+                        <th>Full Name</th>
+                        <th>Sex / Age</th>
+                        <th>Grade</th>
+                        <th>Employment Type</th>
+                        <th>Basic Salary</th>
+                        <th>Bank Account</th>
+                        <th>NRA TIN</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (FilteredEmployees.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-muted">No matching employee records found.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var emp in FilteredEmployees)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary font-monospace">@emp.StaffId</span></td>
+                                <td>
+                                    <div class="fw-bold">@emp.FullName</div>
+                                    <small class="text-muted">@emp.ContactDetails?.PersonalEmail</small>
+                                </td>
+                                <td>@emp.Sex (@(DateTime.UtcNow.Year - emp.DateOfBirth.Year) yrs)</td>
+                                <td><span class="badge bg-info text-dark">Grade @(emp.EmploymentInfo?.GradeLevel ?? 0)</span></td>
+                                <td>@emp.EmploymentInfo?.EmploymentType</td>
+                                <td class="fw-semibold">@emp.EmploymentInfo?.BasicSalary.ToString("N0") @emp.EmploymentInfo?.Currency</td>
+                                <td><small class="font-monospace text-muted">@emp.EmploymentInfo?.SalaryBankAccount</small></td>
+                                <td><small class="font-monospace text-muted">@emp.EmploymentInfo?.NraTin</small></td>
+                                <td>
+                                    <span class="badge @(emp.Status == EmployeeStatus.Active ? "bg-success" : "bg-warning")">
+                                        @emp.Status
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="@($"employees/{emp.Id}")" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-eye"></i> View Profile</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Employee> AllEmployees = [];
+    private string SearchTerm = string.Empty;
+    private int SelectedGrade = 0;
+    private string SelectedStatus = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AllEmployees = await DbContext.Employees
+            .Include(e => e.ContactDetails)
+            .Include(e => e.EmploymentInfo)
+            .ToListAsync();
+    }
+
+    private List<Employee> FilteredEmployees => AllEmployees
+        .Where(e => string.IsNullOrWhiteSpace(SearchTerm) ||
+                    e.StaffId.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    e.FullName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    e.NationalIdNumber.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+        .Where(e => SelectedGrade == 0 || e.EmploymentInfo?.GradeLevel == SelectedGrade)
+        .Where(e => string.IsNullOrEmpty(SelectedStatus) || e.Status.ToString().Equals(SelectedStatus, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+}

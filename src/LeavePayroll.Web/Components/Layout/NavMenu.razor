@@ -1,0 +1,44 @@
+<div class="top-row ps-3 navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white fw-bold d-flex align-items-center" href="">
+            <span class="bi bi-bank me-2"></span> CBE Leave & Payroll
+        </a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-speedometer2 me-2" aria-hidden="true"></span> Dashboard
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="employees">
+                <span class="bi bi-people-fill me-2" aria-hidden="true"></span> Employee Directory
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="movements">
+                <span class="bi bi-arrow-left-right me-2" aria-hidden="true"></span> Promotions & Transfers
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="discipline">
+                <span class="bi bi-shield-exclamation me-2" aria-hidden="true"></span> Disciplinary Records
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="leave">
+                <span class="bi bi-calendar-check me-2" aria-hidden="true"></span> Leave Management
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="payroll">
+                <span class="bi bi-cash-stack me-2" aria-hidden="true"></span> Monthly Payroll
+            </NavLink>
+        </div>
+    </nav>
+</div>
