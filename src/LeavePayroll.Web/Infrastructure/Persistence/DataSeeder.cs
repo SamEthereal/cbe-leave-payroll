@@ -1,6 +1,5 @@
 using LeavePayroll.Domain.Employees;
 using LeavePayroll.Domain.Organization;
-using LeavePayroll.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LeavePayroll.Infrastructure.Persistence;

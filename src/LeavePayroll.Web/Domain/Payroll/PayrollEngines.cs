@@ -7,12 +7,6 @@ public interface ITaxCalculator
 
 public class SouthSudanTaxCalculator : ITaxCalculator
 {
-    // South Sudan PIT Brackets (NRA)
-    // 0 - 2,000 SSP: 0%
-    // 2,001 - 5,000 SSP: 5%
-    // 5,001 - 10,000 SSP: 10%
-    // 10,001 - 15,000 SSP: 15%
-    // > 15,000 SSP: 20%
     public decimal CalculateIncomeTax(decimal taxableSalary)
     {
         if (taxableSalary <= 0) return 0m;
@@ -45,11 +39,6 @@ public class SouthSudanTaxCalculator : ITaxCalculator
 
 public class DjiboutiTaxCalculator : ITaxCalculator
 {
-    // Djibouti Progressive Tax Brackets (PTS)
-    // 0 - 30,000 DJF: 0%
-    // 30,001 - 50,000 DJF: 15%
-    // 50,001 - 150,000 DJF: 20%
-    // > 150,000 DJF: 30%
     public decimal CalculateIncomeTax(decimal taxableSalary)
     {
         if (taxableSalary <= 0) return 0m;

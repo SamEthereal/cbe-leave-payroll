@@ -9,7 +9,6 @@ public class EmployeeMovement : BaseEntity, IAuditableEntity
     public Guid EmployeeId { get; set; }
     public MovementActionType ActionType { get; set; }
 
-    // Current State
     public Guid CurrentDepartmentId { get; set; }
     public Guid CurrentPositionId { get; set; }
     public int CurrentGradeLevel { get; set; }
@@ -17,7 +16,6 @@ public class EmployeeMovement : BaseEntity, IAuditableEntity
     public Guid? CurrentReportingManagerId { get; set; }
     public string CurrentWorkLocation { get; set; } = string.Empty;
 
-    // Proposed State
     public Guid ProposedDepartmentId { get; set; }
     public Guid ProposedPositionId { get; set; }
     public int ProposedGradeLevel { get; set; }
@@ -28,7 +26,6 @@ public class EmployeeMovement : BaseEntity, IAuditableEntity
     public DateTime EffectiveDate { get; set; }
     public string Justification { get; set; } = string.Empty;
 
-    // Eligibility & Budget Checklist
     public bool SatisfiesMinimumTenure { get; set; }
     public bool PerformanceAppraisalSupports { get; set; }
     public bool MeetsQualificationExperience { get; set; }
@@ -36,7 +33,6 @@ public class EmployeeMovement : BaseEntity, IAuditableEntity
     public bool IsPositionBudgeted { get; set; }
     public bool IsPositionVacant { get; set; }
 
-    // Sign-off / Workflow
     public MovementStatus Status { get; set; } = MovementStatus.Draft;
     public string? RecommendingManagerComments { get; set; }
     public string? RecommendingManagerSignature { get; set; }
@@ -47,7 +43,7 @@ public class EmployeeMovement : BaseEntity, IAuditableEntity
     public DateTime? HrVerifiedAt { get; set; }
 
     public string? ApprovingAuthoritySignature { get; set; }
-    public string? ApprovingAuthorityTitle { get; set; } // Head of Dept, MD, Board
+    public string? ApprovingAuthorityTitle { get; set; }
     public DateTime? ApprovedAt { get; set; }
     public string? RejectionReason { get; set; }
 }

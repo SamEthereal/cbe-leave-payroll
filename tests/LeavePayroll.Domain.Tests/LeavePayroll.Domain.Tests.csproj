@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LeavePayroll.Domain\LeavePayroll.Domain.csproj" />
+    <ProjectReference Include="..\..\src\LeavePayroll.Web\LeavePayroll.Web.csproj" />
   </ItemGroup>
 </Project>

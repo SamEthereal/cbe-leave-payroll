@@ -34,7 +34,7 @@ public class DisciplinaryCase : BaseEntity, IAuditableEntity
 
     public bool IsAppealed { get; set; }
     public string? AppealDetails { get; set; }
-    public string Status { get; set; } = "Active"; // Active, Expired, Dismissed, Appealed
+    public string Status { get; set; } = "Active";
 
     public string? SupervisorSignature { get; set; }
     public string? HrSignature { get; set; }

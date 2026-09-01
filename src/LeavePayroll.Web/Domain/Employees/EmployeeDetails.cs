@@ -5,7 +5,7 @@ namespace LeavePayroll.Domain.Employees;
 public class EmployeeEducation : BaseEntity
 {
     public Guid EmployeeId { get; set; }
-    public string Level { get; set; } = string.Empty; // Elementary, Secondary, College, University
+    public string Level { get; set; } = string.Empty;
     public string SchoolName { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public int YearCompleted { get; set; }
@@ -26,7 +26,7 @@ public class EmployeeLanguage : BaseEntity
 {
     public Guid EmployeeId { get; set; }
     public string LanguageName { get; set; } = string.Empty;
-    public string ReadingRating { get; set; } = "Good"; // Fair, Good, Very Good
+    public string ReadingRating { get; set; } = "Good";
     public string WritingRating { get; set; } = "Good";
     public string SpeakingRating { get; set; } = "Good";
 }

@@ -5,9 +5,9 @@ namespace LeavePayroll.Domain.Approval;
 
 public class MakerCheckerRequest : BaseEntity
 {
-    public string EntityType { get; set; } = string.Empty; // Employee, EmployeeEmployment, PayrollRun
+    public string EntityType { get; set; } = string.Empty;
     public Guid EntityId { get; set; }
-    public string ActionRequested { get; set; } = string.Empty; // UpdateSalary, UpdateBankDetails, UpdateGrade
+    public string ActionRequested { get; set; } = string.Empty;
     public string FieldName { get; set; } = string.Empty;
     public string? OldValue { get; set; }
     public string NewValue { get; set; } = string.Empty;
